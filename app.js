@@ -18,7 +18,7 @@ app.use(cors());
 app.use(bd.urlencoded({ extended: false }));
 app.use(bd.json());
 
-app.get('/home', (req,res) =>{
+app.get('/', (req,res) =>{
     res.json("welcome");
 })
 
