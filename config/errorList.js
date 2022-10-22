@@ -18,6 +18,11 @@ module.exports = {
         logoutSuccess: "Logout Successfull!",
         resetPassword: "Reset Password",
         resetPasswordActionDescription: "Tap the button below to reset your customer account password. If you didn't request a new password, you can safely delete this email.",
+        forgotPassword: "Forgot Password",
+        oldNewPassword: "Old and New passwords cannnot have same value",
+        invalidPassword: "Invalid password !",
+        invalidOldPassword: "Invalid Old password !",
+        passwordChangedSuccess: "Password changed Successfully !",
     },
     verification: {
         notVerifiedEmail: "Please verify this email ID to access these routes !"

@@ -4,13 +4,10 @@ const bd = require("body-parser");
 const colors = require("colors");
 const dotenv = require("dotenv");
 const cors = require("cors");
-const { upload } = require('./config/multer');
-const db = require('./config/db.config');
-const errorList = require('./config/errorList');
-const { cloudinary } = require("./config/cloudinary");
+
 const router = require('./routes');
-const { tokenVerification } = require('./config');
-const { emailService, imageUploaderMulti } = require('./services');
+const { tokenVerification, db, e: errorList, cloudinary, upload } = require('./config');
+const { imageUploaderMulti } = require('./services');
 
 
 dotenv.config();
@@ -23,12 +20,11 @@ const app = express();
 app.use(morgan("dev"));
 app.use(cors());
 app.use(express.json());
-// app.use(bd.urlencoded({ extended: false }));
+app.use(bd.urlencoded({ extended: false }));
 app.use(bd.json());
 app.use('/api', router);
 
 app.get('/home', tokenVerification, async (req,res) =>{
-    // await emailService();
     res.json("welcome");
 })
 

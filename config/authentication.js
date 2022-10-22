@@ -6,7 +6,7 @@ const jwt = require('jsonwebtoken');
 
 const NON_VERIFIED_PATHS = ['/login', '/verify'];
 
-const authentication = async ( req, res, next) => {
+const authentication = async (req, res, next) => {
     try {
         const { email, password } = req.body;
         const user = await User.findOne({ email });
@@ -15,7 +15,7 @@ const authentication = async ( req, res, next) => {
                 error: e.email.invalidEmail
             });
         }else{
-            if( bcrypt.compare(password , user.password) ){
+            if(await bcrypt.compare(password , user.password) ){
                 req.user = user;
                 next();
             }else {
