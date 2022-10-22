@@ -1,4 +1,9 @@
 module.exports = {
+    states:{
+        success: "Success",
+        failed: "Failed",
+        error: "Error please try again!"
+    },
     email:{
         emailAddressRequired: "Email address is required",
         invalidEmail: "Invalid email-address please check and try again !",

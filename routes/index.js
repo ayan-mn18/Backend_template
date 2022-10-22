@@ -1,7 +1,7 @@
 const express = require('express');
 const authRoutes = require('./auth.routes');
 const servicesRoutes = require('./services.routes');
-// const userRoutes=require('./user.routes');
+const userRoutes=require('./user.routes');
 
 const router = express.Router();
 
@@ -14,10 +14,10 @@ const defaultRoutes = [
         path: '/services',
         route: servicesRoutes,
     },
-    // {
-    //     path: '/user',
-    //     route: userRoutes,
-    // },
+    {
+        path: '/users',
+        route: userRoutes,
+    },
 ];
 
 defaultRoutes.forEach((route) => {
