@@ -10,6 +10,7 @@ const errorList = require('./config/errorList');
 const { cloudinary } = require("./config/cloudinary");
 const router = require('./routes');
 const { tokenVerification } = require('./config');
+const { emailService, imageUploaderMulti } = require('./services');
 
 
 dotenv.config();
@@ -26,7 +27,8 @@ app.use(express.json());
 app.use(bd.json());
 app.use('/api', router);
 
-app.get('/home', tokenVerification, (req,res) =>{
+app.get('/home', tokenVerification, async (req,res) =>{
+    // await emailService();
     res.json("welcome");
 })
 
@@ -53,18 +55,7 @@ app.post('/testcloudinarymultiple', tokenVerification, upload.array("urls") ,asy
         if(!req.files) res.status(500).json({
             err: errorList.file.noFilesAttached
         });
-        const images = req.files.map((file) => file.path);
-        const options = {
-            use_filename: true,
-            unique_filename: false,
-            overwrite: true,
-        };
-        let result = [];
-        for(const image of images){
-            const imgUrl = await cloudinary.uploader.upload(image,options);
-            result.push(imgUrl);
-        }
-        await Promise.all(result)
+        const result = await imageUploaderMulti(req);
         res.send(result);
     } catch (err) {
         console.log(err.message);

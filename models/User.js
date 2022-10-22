@@ -9,6 +9,7 @@ const userSchema = new mongoose.Schema({
     username: {
         type:String,
         required: true,
+        unique: true,
         trim: true
     },
     email: {
@@ -37,6 +38,10 @@ const userSchema = new mongoose.Schema({
         type: Number,
         trim: true
 
+    },
+    verified: {
+        type: Boolean,
+        default: false
     }
 });
 

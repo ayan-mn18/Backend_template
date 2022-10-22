@@ -4,7 +4,9 @@ const e = require("./errorList");
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
-const authentication = async (req, res, next) => {
+const NON_VERIFIED_PATHS = ['/login', '/verify'];
+
+const authentication = async ( req, res, next) => {
     try {
         const { email, password } = req.body;
         const user = await User.findOne({ email });
@@ -42,10 +44,17 @@ const tokenVerification = async (req, res, next) => {
                     res.status(500).json({
                         error: error.message
                     })
+                }else{
+                    req.user = user;
+                    if(NON_VERIFIED_PATHS.find(path => path === req.route.path) || req.user.verified){
+                        next();
+                    }else {
+                        res.status(500).json({
+                            error: e.verification.notVerifiedEmail
+                        });
+                    }
                 }
-                req.user = user;
-                next();
-            })
+            });
         }
     } catch (error) {
         res.status(500).json({
