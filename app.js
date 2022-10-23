@@ -4,6 +4,9 @@ const bd = require("body-parser");
 const colors = require("colors");
 const dotenv = require("dotenv");
 const cors = require("cors");
+const passport = require("passport");
+const cookieSession = require('cookie-session');
+const session = require('express-session');
 
 const router = require('./routes');
 const { tokenVerification, db, e: errorList, cloudinary, upload } = require('./config');
@@ -22,10 +25,28 @@ app.use(cors());
 app.use(express.json());
 app.use(bd.urlencoded({ extended: false }));
 app.use(bd.json());
+// app.use(cookieSession({
+//     name: 'google-auth-session',
+//     keys: ['key1', 'key2']
+// }));
+app.use(session({
+    secret: 'subtle',
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: true }
+}));
+app.use(passport.initialize());
+app.use(passport.session());
 app.use('/api', router);
 
 app.get('/home', tokenVerification, async (req,res) =>{
     res.json("welcome");
+})
+
+app.get('/failed', (req,res) => {
+    res.json({
+        message: errorList.states.failed
+    });
 })
 
 app.post('/testcloudinary', tokenVerification, upload.single("url") ,async (req,res) =>{

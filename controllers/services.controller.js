@@ -71,13 +71,13 @@ const verifyEmailWithJwtToken = async (req,res) => {
             error: error.message
         })
     }
-}
+};
 
-const forgotPassword = async (req,res) => {
+const resetPasswordRequest = async (req,res) => {
     try {
         const { username, email } = req.user;
         const jwtToken = jwt.sign({ email }, process.env.JWT_ACCESS_TOKEN, { expiresIn: '604800' }); 
-        const type_of_action = e.login.forgotPassword;
+        const type_of_action = e.login.resetPassword;
         const action_description = e.login.resetPasswordActionDescription;
         const url = process.env.DOMAIN + '/api/services/resetpassword?jwt=' + jwtToken ;
         const response = await emailService(type_of_action, url, username, email, action_description);
@@ -126,7 +126,7 @@ const resetPassword = async (req,res) => {
                 if(await bcrypt.compare(oldPassword, user.password) ){
                     user.password = await bcrypt.hash(newPassword, 10);
                     await user.save(); 
-                    res.status(500).json({
+                    res.status(200).json({
                         message: e.login.passwordChangedSuccess,
                         body: user._doc
                     });
@@ -144,9 +144,70 @@ const resetPassword = async (req,res) => {
     }
 };
 
+const forgotPassword = async (req,res) => {
+    try {
+        const { username, email } = req.body ;
+        const jwtToken = jwt.sign({ email }, process.env.JWT_ACCESS_TOKEN, { expiresIn: '604800' }); 
+        const type_of_action = e.login.forgotPassword;
+        const action_description = e.login.resetPasswordActionDescription;
+        const url = process.env.DOMAIN + '/api/services/resetpassword?jwt=' + jwtToken ;
+        const response = await emailService(type_of_action, url, username, email, action_description);
+        if(response.err != "NULL"){
+            res.status(500).json({
+                error: response.err
+            });
+        } else {
+            response.acceptedMail.map((mail) => console.log(`Mail sent to ${`${mail}`.bold.green} for action "${type_of_action}"`));
+            res.status(200).json({
+                message: `Succesfully sent mail for '${type_of_action}' to ${response.acceptedMail[0]}`
+            })
+        };
+    } catch (error) {
+        res.status(500).json({
+            error: error.message
+        });
+    }
+};
+
+const changePassword = async (req,res) => {
+    try {
+        const jwtToken = req.query.jwt;
+        jwt.verify( jwtToken, process.env.JWT_ACCESS_TOKEN, async (err, data) => {
+            if (err) {
+                res.status(500).json({
+                    message: err.message
+                });
+                return;
+            }
+            const date = new Date().getTime()/1000;
+            if (date > data.exp) {
+                res.status(500).json({
+                    message: e.expiration.tokenExpired
+                });
+                return;
+            } else {
+                const user = await User.findOne({ email: data.email });
+                let { password } = req.body;
+                user.password = await bcrypt.hash(password, 10);
+                await user.save(); 
+                res.status(200).json({
+                    message: e.login.passwordChangedSuccess,
+                    body: user._doc
+                });
+            }
+        })
+    } catch (error) {
+        res.status(500).json({
+            error: error.message
+        })
+    }
+};
+
 module.exports = {
     verifyEmail,
     forgotPassword,
     verifyEmailWithJwtToken,
     resetPassword,
+    changePassword,
+    resetPasswordRequest,
 }
